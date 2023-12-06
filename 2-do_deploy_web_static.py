@@ -1,49 +1,35 @@
 #!/usr/bin/python3
-# Fabfile to distribute the archive to a web server.
-import os.path
-from fabric.api import env
-from fabric.api import put
-from fabric.api import run
+"""
+Fabric script that distributes an archive to web servers using the function do_deploy.
+"""
 
-env.hosts = ["104.196.168.90", "35.196.46.172"]
+from fabric.api import put, run, env
+from os.path import exists
+
+env.hosts = ['<IP web-01>', '<IP web-02>']
 
 
 def do_deploy(archive_path):
-    """Distributes an archive to a web server.
+    """Distributes an archive to web servers."""
 
-    Args:
-        archive_path (str): The path of the archive to distribute.
-    Returns:
-        If the file doesn't exist at archive_path or an error occurs - False.
-        Otherwise - True.
-    """
-    if os.path.isfile(archive_path) is False:
+    if not exists(archive_path):
         return False
-    file = archive_path.split("/")[-1]
-    name = file.split(".")[0]
 
-    if put(archive_path, "/tmp/{}".format(file)).failed is True:
+    try:
+        archive_name = archive_path.split('/')[-1]
+        path_no_ext = '/data/web_static/releases/' + archive_name.split('.')[0]
+
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}'.format(path_no_ext))
+        run('tar -xzf /tmp/{} -C {}'.format(archive_name, path_no_ext))
+        run('rm /tmp/{}'.format(archive_name))
+        run('mv {}/web_static/* {}'.format(path_no_ext, path_no_ext))
+        run('rm -rf {}/web_static'.format(path_no_ext))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {} /data/web_static/current'.format(path_no_ext))
+
+        return True
+
+    except Exception as e:
         return False
-    if run("rm -rf /data/web_static/releases/{}/".
-           format(name)).failed is True:
-        return False
-    if run("mkdir -p /data/web_static/releases/{}/".
-           format(name)).failed is True:
-        return False
-    if run("tar -xzf /tmp/{} -C /data/web_static/releases/{}/".
-           format(file, name)).failed is True:
-        return False
-    if run("rm /tmp/{}".format(file)).failed is True:
-        return False
-    if run("mv /data/web_static/releases/{}/web_static/* "
-           "/data/web_static/releases/{}/".format(name, name)).failed is True:
-        return False
-    if run("rm -rf /data/web_static/releases/{}/web_static".
-           format(name)).failed is True:
-        return False
-    if run("rm -rf /data/web_static/current").failed is True:
-        return False
-    if run("ln -s /data/web_static/releases/{}/ /data/web_static/current".
-           format(name)).failed is True:
-        return False
-    return True
+
