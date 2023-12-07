@@ -1,17 +1,19 @@
 #!/usr/bin/python3
-"""A module for web application deployment with Fabric."""
+"""
+A module for  the web application deployment with Fabric.
+"""
 import os
 from datetime import datetime
 from fabric.api import env, local, put, run, runs_once
 
 
 env.hosts = ["34.73.0.174", "35.196.78.105"]
-"""The list of host server IP addresses."""
+"""The list of the host server IP addresses."""
 
 
 @runs_once
 def do_pack():
-    """Archives the static files."""
+    """Archives of the static files."""
     if not os.path.isdir("versions"):
         os.mkdir("versions")
     cur_time = datetime.now()
@@ -34,9 +36,10 @@ def do_pack():
 
 
 def do_deploy(archive_path):
-    """Deploys the static files to the host servers.
+    """
+    Deploys the static files to host servers.
     Args:
-        archive_path (str): The path to the archived static files.
+        archive_path (string): The path to the archived static files.
     """
     if not os.path.exists(archive_path):
         return False
@@ -61,16 +64,17 @@ def do_deploy(archive_path):
 
 
 def deploy():
-    """Archives and deploys the static files to the host servers.
+    """
+    Archives and deploys the static files to host servers.
     """
     archive_path = do_pack()
     return do_deploy(archive_path) if archive_path else False
 
 
 def do_clean(number=0):
-    """Deletes out-of-date archives of the static files.
+    """Deletes out-of-date archives of  static files.
     Args:
-        number (Any): The number of archives to keep.
+        number (Any): The number of the archives to keep.
     """
     archives = os.listdir('versions/')
     archives.sort(reverse=True)
