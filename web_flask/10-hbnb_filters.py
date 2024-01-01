@@ -1,29 +1,31 @@
 #!/usr/bin/python3
-""" Script that runs an app with Flask framework """
-from flask import Flask, render_template
-from models import storage
-from models.state import State
-from models.amenity import Amenity
+"""Starts a Flask web application.
 
+The application listens on 0.0.0.0, port 5000.
+Routes:
+    /hbnb_filters: HBnB HTML filters page.
+"""
+from models.engine.db_storage import DBStorage
+from flask import Flask
+from flask import render_template
 
 app = Flask(__name__)
 
 
+@app.route("/hbnb_filters", strict_slashes=False)
+def hbnb_filters():
+    """Displays  main HBnB filters HTML page."""
+    states = storage.all("State")
+    amenities = storage.all("Amenity")
+    return render_template("10-hbnb_filters.html",
+                           states=states, amenities=amenities)
+
+
 @app.teardown_appcontext
-def teardown_session(exception):
-    """ Teardown """
+def teardown(exc):
+    """Remove current SQLAlchemy session."""
     storage.close()
 
 
-@app.route('/hbnb_filters/', strict_slashes=False)
-def display_html():
-    """ Function called with /states route """
-    states = storage.all(State)
-    amenities = storage.all(Amenity)
-
-    return render_template('10-hbnb_filters.html',
-                           states=states.values(),
-                           amenities=amenities.values())
-
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0")
