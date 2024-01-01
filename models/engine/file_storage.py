@@ -1,7 +1,4 @@
 #!/usr/bin/python3
-"""This is the file storage class for AirBnB"""
-
-#!/usr/bin/python3
 """
 Contains the FileStorage class
 """

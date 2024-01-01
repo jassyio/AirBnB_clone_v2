@@ -1,7 +1,8 @@
 #!/usr/bin/python3
-"""Database storage engine using the SQLAlchemy with  mysql+mysqldb database
+"""Database storage engine using SQLAlchemy with a mysql+mysqldb database
 connection.
 """
+
 import os
 from models.base_model import Base
 from models.amenity import Amenity
